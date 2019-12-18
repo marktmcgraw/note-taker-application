@@ -5,7 +5,7 @@ const $newNoteBtn = $(".new-note");
 const $noteList = $(".list-container .list-group");
 
 // activeNote is used to keep track of the note in the textarea
-const activeNote = {};
+let activeNote = {};
 
 // A function for getting all notes from the db
 const getNotes = function() {
@@ -16,7 +16,7 @@ const getNotes = function() {
 };
 
 // A function for saving a note to the db
-const saveNote = function(note) {
+var saveNote = function(note) {
   return $.ajax({
     url: "/api/notes",
     data: note,
@@ -25,7 +25,7 @@ const saveNote = function(note) {
 };
 
 // A function for deleting a note from the db
-const deleteNote = function(id) {
+var deleteNote = function(id) {
   return $.ajax({
     url: "api/notes/" + id,
     method: "DELETE"
@@ -33,7 +33,7 @@ const deleteNote = function(id) {
 };
 
 // If there is an activeNote, display it, otherwise render empty inputs
-const renderActiveNote = function() {
+var renderActiveNote = function() {
   $saveNoteBtn.hide();
 
   if (activeNote.id) {
@@ -63,11 +63,11 @@ const handleNoteSave = function() {
 };
 
 // Delete the clicked note
-const handleNoteDelete = function(event) {
+var handleNoteDelete = function(event) {
   // prevents the click listener for the list from being called when the button inside of it is clicked
   event.stopPropagation();
 
-  const note = $(this)
+  var note = $(this)
     .parent(".list-group-item")
     .data();
 
@@ -82,20 +82,20 @@ const handleNoteDelete = function(event) {
 };
 
 // Sets the activeNote and displays it
-const handleNoteView = function() {
+var handleNoteView = function() {
   activeNote = $(this).data();
   renderActiveNote();
 };
 
 // Sets the activeNote to and empty object and allows the user to enter a new note
-const handleNewNoteView = function() {
+var handleNewNoteView = function() {
   activeNote = {};
   renderActiveNote();
 };
 
 // If a note's title or text are empty, hide the save button
 // Or else show it
-const handleRenderSaveBtn = function() {
+var handleRenderSaveBtn = function() {
   if (!$noteTitle.val().trim() || !$noteText.val().trim()) {
     $saveNoteBtn.hide();
   } else {
@@ -104,7 +104,7 @@ const handleRenderSaveBtn = function() {
 };
 
 // Render's the list of note titles
-const renderNoteList = function(notes) {
+var renderNoteList = function(notes) {
   $noteList.empty();
 
   const noteListItems = [];
@@ -112,10 +112,12 @@ const renderNoteList = function(notes) {
   for (let i = 0; i < notes.length; i++) {
     const note = notes[i];
 
-    const $li = $("<li class='list-group-item'>").data(note);
+    const $li = $(`<li class='list-group-item'id=${note.id}>`).data(note);
     const $span = $("<span>").text(note.title);
+
+    //changed red trash cans to normal
     const $delBtn = $(
-      "<i class='fas fa-trash-alt float-right text-danger delete-note'>"
+      `<i class='fas fa-trash-alt float-right delete-note'>`
     );
 
     $li.append($span, $delBtn);

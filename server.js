@@ -1,10 +1,8 @@
-// Dependencies 
+// Dependencies
 // =============================================================
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-
-
 
 // Sets up the Express App
 // =============================================================
@@ -17,7 +15,6 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-
 // Routes
 // =============================================================
 // Basic route that sends the user first to the AJAX Page
@@ -28,39 +25,49 @@ app.get("/notes", function(req, res) {
   res.sendFile(path.join(__dirname, "public/assets/notes.html"));
 });
 
-// Displays all notes
+//Retrieve notes from the db.json
 app.get("/api/notes", function(req, res) {
-  return res.json(notes);
+  res.sendFile(path.join(__dirname, "/db/db.json"));
 });
-// Displays a single note, or returns false
-app.get("/api/notes/:notes", function(req, res) {
-  const chosen = req.params.notes;
-  console.log(chosen);
-  for (let i = 0; i < notes.length; i++) {
-    if (chosen === notes[i].routeName) {
-      return res.json(notes[i]);
-    }
-  }
-  return res.json(false);
-});
-// Create New Characters - takes in JSON input
+
+//Post a note function
+notes = [];
 app.post("/api/notes", function(req, res) {
-  // req.body hosts is equal to the JSON post sent from the user
-  // This works because of our body parsing middleware
-  const newNote = req.body;
-  // Using a RegEx Pattern to remove spaces from newCharacter
-  // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
-  newNote.routeName = newNote.name.replace(/\s+/g, "").toLowerCase();
-  console.log(newNote);
-  characters.push(newNote);
-  res.json(newNote);
+  jason = path.join(__dirname, "/db/db.json");
+  newNote = req.body;
+
+  //gets JSON file and saves it
+  function getJasonFile() {
+    fs.readFile(jason, "utf8", function(error, response) {
+      if (error) {
+        console.log(error);
+      }
+      notes = JSON.parse(response);
+      writeJasonFile();
+    });
+  }
+  getJasonFile();
+
+  function writeJasonFile() {
+    //assigning IDs for notes
+    notes.push(newNote);
+    for (let i = 0; i < notes.length; i++) {
+      note = notes[i];
+      note.id = i + 1;
+    }
+    // adds a new note
+    fs.writeFile(jason, JSON.stringify(notes), function(err) {
+      if (err) {
+        return console.log(err);
+      }
+      console.log("Your note is saved!");
+    });
+  }
+  res.sendFile(path.join(__dirname, "/db/db.json"));
 });
-// Starts the server to begin listening
-// =============================================================
+
+// Starting the server
+
 app.listen(PORT, function() {
   console.log("App listening on PORT " + PORT);
 });
-
-
-
-
